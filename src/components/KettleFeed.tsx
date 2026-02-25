@@ -364,6 +364,7 @@ export function KettleFeed({ kettle, posts: initialPosts }: KettleFeedProps) {
         .from("posts")
         .select("id, content, image_url, heat_score, anonymous_identity, parent_post_id, created_at")
         .eq("kettle_id", kettle.id)
+        .eq("is_hidden", false)
         .order("created_at", { ascending: false });
       
       if (error) {

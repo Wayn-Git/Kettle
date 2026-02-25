@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { createSupabaseClient, isSupabaseConfigured } from '@/lib/supabaseClient';
 import { timeAgo } from '@/lib/timeAgo';
 
@@ -58,6 +58,7 @@ export default function AdminPostsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const fetchPosts = useCallback(async () => {
     if (!isSupabaseConfigured()) {
@@ -104,18 +105,54 @@ export default function AdminPostsPage() {
     fetchPosts();
   }, [fetchPosts]);
 
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
   const handleHidePost = async (postId: string) => {
     setActionLoading(postId);
     try {
-      if (isSupabaseConfigured()) {
-        const supabase = createSupabaseClient();
-        await supabase
+      if (!isSupabaseConfigured()) {
+        showToast('Supabase not configured. Update happens locally only.', 'error');
+        setPosts(posts.map(p => p.id === postId ? { ...p, is_hidden: true } : p));
+        setSelectedPost(null);
+        setActionLoading(null);
+        return;
+      }
+
+      const supabase = createSupabaseClient();
+      
+      // Try using admin function first
+      const { data: funcData, error: funcError } = await supabase.rpc('admin_hide_post', {
+        post_id: postId,
+        admin_identifier: 'admin_panel'
+      });
+      
+      // Fallback to direct update if function doesn't exist
+      if (funcError) {
+        console.log('Admin function not available, using direct update:', funcError.message);
+        const { error: updateError } = await supabase
           .from('posts')
           .update({ is_hidden: true })
           .eq('id', postId);
+        
+        if (updateError) {
+          console.error('Update error:', updateError);
+          throw new Error(`Failed to update: ${updateError.message}`);
+        }
+      } else {
+        console.log('Admin function succeeded:', funcData);
       }
+      
+      // Update local state only after successful database update
       setPosts(posts.map(p => p.id === postId ? { ...p, is_hidden: true } : p));
       setSelectedPost(null);
+      showToast('Post hidden successfully', 'success');
+    } catch (error) {
+      console.error('Failed to hide post:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      showToast(`Failed to hide: ${errorMessage}`, 'error');
     } finally {
       setActionLoading(null);
     }
@@ -124,31 +161,100 @@ export default function AdminPostsPage() {
   const handleRestorePost = async (postId: string) => {
     setActionLoading(postId);
     try {
-      if (isSupabaseConfigured()) {
-        const supabase = createSupabaseClient();
-        await supabase
+      if (!isSupabaseConfigured()) {
+        showToast('Supabase not configured. Update happens locally only.', 'error');
+        setPosts(posts.map(p => p.id === postId ? { ...p, is_hidden: false } : p));
+        setSelectedPost(null);
+        setActionLoading(null);
+        return;
+      }
+
+      const supabase = createSupabaseClient();
+      
+      // Try using admin function first
+      const { data: funcData, error: funcError } = await supabase.rpc('admin_restore_post', {
+        post_id: postId,
+        admin_identifier: 'admin_panel'
+      });
+      
+      // Fallback to direct update if function doesn't exist
+      if (funcError) {
+        console.log('Admin function not available, using direct update:', funcError.message);
+        const { error: updateError } = await supabase
           .from('posts')
           .update({ is_hidden: false })
           .eq('id', postId);
+        
+        if (updateError) {
+          console.error('Update error:', updateError);
+          throw new Error(`Failed to update: ${updateError.message}`);
+        }
+      } else {
+        console.log('Admin function succeeded:', funcData);
       }
+      
+      // Update local state only after successful database update
       setPosts(posts.map(p => p.id === postId ? { ...p, is_hidden: false } : p));
       setSelectedPost(null);
+      showToast('Post restored successfully', 'success');
+    } catch (error) {
+      console.error('Failed to restore post:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      showToast(`Failed to restore: ${errorMessage}`, 'error');
     } finally {
       setActionLoading(null);
     }
   };
 
   const handleDeletePost = async (postId: string) => {
-    if (!confirm('Are you sure you want to permanently delete this post?')) return;
+    if (!confirm('⚠️ PERMANENT DELETE\n\nAre you sure you want to permanently delete this post?\n\nThis action CANNOT be undone and will also delete:\n• All replies to this post\n• All reports for this post\n\nType YES to confirm:') && 
+        prompt('Type YES to confirm deletion:')?.toUpperCase() !== 'YES') {
+      return;
+    }
     
     setActionLoading(postId);
     try {
-      if (isSupabaseConfigured()) {
-        const supabase = createSupabaseClient();
-        await supabase.from('posts').delete().eq('id', postId);
+      if (!isSupabaseConfigured()) {
+        showToast('Supabase not configured. Delete happens locally only.', 'error');
+        setPosts(posts.filter(p => p.id !== postId));
+        setSelectedPost(null);
+        setActionLoading(null);
+        return;
       }
+
+      const supabase = createSupabaseClient();
+      
+      // Try using admin delete function first
+      const { data, error: funcError } = await supabase.rpc('admin_delete_post', {
+        post_id: postId,
+        admin_identifier: 'admin_panel'
+      });
+      
+      // Fallback to direct delete if function doesn't exist
+      if (funcError || !data) {
+        console.log('Admin function not available, using direct delete');
+        const { error: deleteError } = await supabase
+          .from('posts')
+          .delete()
+          .eq('id', postId);
+        
+        if (deleteError) {
+          // Check if it's an RLS policy error
+          if (deleteError.message.includes('policy')) {
+            throw new Error('Delete policy not configured. Please run supabase-fix-admin-delete.sql');
+          }
+          throw deleteError;
+        }
+      }
+      
+      // Update local state only after successful database delete
       setPosts(posts.filter(p => p.id !== postId));
       setSelectedPost(null);
+      showToast('Post deleted successfully', 'success');
+    } catch (error) {
+      console.error('Failed to delete post:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      showToast(`Failed to delete: ${errorMessage}`, 'error');
     } finally {
       setActionLoading(null);
     }
@@ -357,6 +463,27 @@ export default function AdminPostsPage() {
           </motion.div>
         </div>
       )}
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className={`fixed bottom-4 right-4 z-[100] rounded-xl border px-6 py-3 shadow-lg ${
+              toast.type === 'success'
+                ? 'border-green-500/30 bg-green-500/20 text-green-400'
+                : 'border-red-500/30 bg-red-500/20 text-red-400'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-lg">{toast.type === 'success' ? '✓' : '✗'}</span>
+              <p className="text-sm font-bold">{toast.message}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

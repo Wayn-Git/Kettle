@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { createSupabaseClient, isSupabaseConfigured } from '@/lib/supabaseClient';
 import { timeAgo } from '@/lib/timeAgo';
 
@@ -74,6 +74,7 @@ export default function ReportsPage() {
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   const fetchReports = useCallback(async () => {
     if (!isSupabaseConfigured()) {
@@ -126,42 +127,107 @@ export default function ReportsPage() {
     fetchReports();
   }, [fetchReports]);
 
+  const showToast = (message: string, type: 'success' | 'error' = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
   const handleAction = async (reportId: string, action: 'dismiss' | 'hide' | 'delete') => {
     setActionLoading(reportId);
     const report = reports.find(r => r.id === reportId);
     if (!report) return;
 
     try {
-      if (isSupabaseConfigured()) {
-        const supabase = createSupabaseClient();
+      if (!isSupabaseConfigured()) {
+        showToast('Supabase not configured. Action happens locally only.', 'error');
+        setReports(reports.map(r => 
+          r.id === reportId 
+            ? { ...r, status: action === 'dismiss' ? 'dismissed' : 'actioned' } 
+            : r
+        ));
+        setSelectedReport(null);
+        setActionLoading(null);
+        return;
+      }
+
+      const supabase = createSupabaseClient();
+      
+      if (action === 'dismiss') {
+        const { error } = await supabase
+          .from('reports')
+          .update({ status: 'dismissed' })
+          .eq('id', reportId);
         
-        if (action === 'dismiss') {
-          await supabase
-            .from('reports')
-            .update({ status: 'dismissed' })
-            .eq('id', reportId);
-        } else if (action === 'hide') {
-          await supabase
+        if (error) throw error;
+        showToast('Report dismissed', 'success');
+      } else if (action === 'hide') {
+        // Try admin function first
+        const { data: funcData, error: funcError } = await supabase.rpc('admin_hide_post', {
+          post_id: report.post_id,
+          admin_identifier: 'admin_panel'
+        });
+        
+        // Fallback to direct update
+        if (funcError) {
+          console.log('Admin function not available, using direct update:', funcError.message);
+          const { error: hideError } = await supabase
             .from('posts')
             .update({ is_hidden: true })
             .eq('id', report.post_id);
-          await supabase
-            .from('reports')
-            .update({ status: 'actioned', action_taken: 'post_hidden' })
-            .eq('id', reportId);
-        } else if (action === 'delete') {
-          await supabase
+          
+          if (hideError) {
+            console.error('Hide error:', hideError);
+            throw new Error(`Failed to hide post: ${hideError.message}`);
+          }
+        } else {
+          console.log('Admin function succeeded:', funcData);
+        }
+        
+        const { error: reportError } = await supabase
+          .from('reports')
+          .update({ status: 'actioned', action_taken: 'post_hidden' })
+          .eq('id', reportId);
+        
+        if (reportError) throw reportError;
+        showToast('Post hidden successfully', 'success');
+      } else if (action === 'delete') {
+        // Confirm deletion
+        if (!confirm('⚠️ DELETE REPORTED POST\n\nAre you sure you want to permanently delete this post?\n\nThis will also delete all replies and mark the report as actioned.')) {
+          setActionLoading(null);
+          return;
+        }
+        
+        // Try admin function first
+        const { data, error: funcError } = await supabase.rpc('admin_delete_post', {
+          post_id: report.post_id,
+          admin_identifier: 'admin_panel'
+        });
+        
+        // Fallback to direct delete
+        if (funcError || !data) {
+          const { error: deleteError } = await supabase
             .from('posts')
             .delete()
             .eq('id', report.post_id);
-          await supabase
-            .from('reports')
-            .update({ status: 'actioned', action_taken: 'post_deleted' })
-            .eq('id', reportId);
+          
+          if (deleteError) {
+            if (deleteError.message.includes('policy')) {
+              throw new Error('Delete policy not configured. Please run supabase-fix-admin-delete.sql');
+            }
+            throw deleteError;
+          }
         }
+        
+        const { error: reportError } = await supabase
+          .from('reports')
+          .update({ status: 'actioned', action_taken: 'post_deleted' })
+          .eq('id', reportId);
+        
+        if (reportError) throw reportError;
+        showToast('Post deleted successfully', 'success');
       }
 
-      // Update local state
+      // Update local state only after successful database operation
       setReports(reports.map(r => 
         r.id === reportId 
           ? { ...r, status: action === 'dismiss' ? 'dismissed' : 'actioned' } 
@@ -170,6 +236,8 @@ export default function ReportsPage() {
       setSelectedReport(null);
     } catch (error) {
       console.error('Failed to handle report:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      showToast(`Failed: ${errorMessage}`, 'error');
     } finally {
       setActionLoading(null);
     }
@@ -355,6 +423,27 @@ export default function ReportsPage() {
           </motion.div>
         </div>
       )}
+
+      {/* Toast Notification */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            className={`fixed bottom-4 right-4 z-[100] rounded-xl border px-6 py-3 shadow-lg ${
+              toast.type === 'success'
+                ? 'border-green-500/30 bg-green-500/20 text-green-400'
+                : 'border-red-500/30 bg-red-500/20 text-red-400'
+            }`}
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-lg">{toast.type === 'success' ? '✓' : '✗'}</span>
+              <p className="text-sm font-bold">{toast.message}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
