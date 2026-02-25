@@ -52,8 +52,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/Kettlelogo.png" sizes="any" />
+        <link rel="apple-touch-icon" href="/Kettlelogo.png" />
       </head>
       <body
         className={`${archivo.variable} font-sans antialiased`}
@@ -65,7 +65,11 @@ export default function RootLayout({
               <header className="border-b border-white/10 bg-charcoal/80 backdrop-blur-2xl sticky top-0 z-50">
                 <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
                   <Link href="/" className="flex items-center gap-2 group">
-                    <div className="h-7 w-7 rounded-xl bg-neon-green shadow-[0_0_20px_var(--neon-green)] group-hover:shadow-[0_0_30px_var(--neon-green)] transition-shadow" />
+                    <img 
+                      src="/Kettlelogo.png" 
+                      alt="Kettle" 
+                      className="h-8 w-8 object-contain group-hover:opacity-80 transition-opacity"
+                    />
                     <span className="bg-gradient-to-r from-neon-green to-hot-pink bg-clip-text text-lg font-bold text-transparent">
                       Tea
                     </span>
