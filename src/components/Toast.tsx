@@ -41,27 +41,46 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext.Provider value={{ showToast }}>
       {children}
-      <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+      <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-3 pointer-events-none">
         <AnimatePresence mode="popLayout">
           {toasts.map((toast) => (
             <motion.div
               key={toast.id}
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              transition={{ duration: 0.2 }}
-              className={`glass-strong rounded-xl border px-4 py-3 shadow-lg ${
-                toast.type === 'success'
-                  ? 'border-neon-green/40 text-neon-green'
-                  : toast.type === 'error'
-                  ? 'border-hot-pink/40 text-hot-pink'
-                  : 'border-white/20 text-zinc-100'
-              }`}
+              exit={{ opacity: 0, y: -20, scale: 0.95, filter: 'blur(4px)' }}
+              transition={{
+                type: 'spring',
+                stiffness: 400,
+                damping: 25
+              }}
+              className={`glass-strong relative overflow-hidden rounded-[16px] border px-4 py-3.5 shadow-premium pointer-events-auto flex items-center gap-3 w-max max-w-sm ${toast.type === 'success'
+                ? 'border-sky-500/30 bg-sky-500/5'
+                : toast.type === 'error'
+                  ? 'border-violet-500/30 bg-violet-500/5'
+                  : 'border-white/10 bg-white/5'
+                }`}
             >
-              <p className="text-sm font-bold flex items-center gap-2">
-                {toast.type === 'success' && '✅'}
-                {toast.type === 'error' && '❌'}
-                {toast.type === 'info' && '💡'}
+              {/* Subtle background glow */}
+              <div
+                className={`absolute inset-0 opacity-20 blur-xl ${toast.type === 'success' ? 'bg-sky-500' :
+                  toast.type === 'error' ? 'bg-violet-500' : 'bg-white'
+                  }`}
+              />
+
+              <div className={`flex items-center justify-center flex-shrink-0 w-6 h-6 rounded-full ${toast.type === 'success' ? 'bg-sky-500/20 text-sky-400' :
+                toast.type === 'error' ? 'bg-violet-500/20 text-violet-400' :
+                  'bg-white/10 text-zinc-300'
+                }`}>
+                {toast.type === 'success' && <span className="text-[11px]">✓</span>}
+                {toast.type === 'error' && <span className="text-[11px]">✕</span>}
+                {toast.type === 'info' && <span className="text-[11px]">i</span>}
+              </div>
+
+              <p className={`text-[14px] font-semibold tracking-tight relative z-10 ${toast.type === 'success' ? 'text-sky-50' :
+                toast.type === 'error' ? 'text-violet-50' :
+                  'text-zinc-100'
+                }`}>
                 {toast.message}
               </p>
             </motion.div>

@@ -151,120 +151,117 @@ export default async function Home() {
   const { kettles, trendingPosts, isLive } = await getHomeData();
 
   return (
-    <div className="flex w-full flex-col gap-8 lg:flex-row lg:gap-10">
-      <section className="flex-1 space-y-6">
-        <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-bold shadow-lg ${
-          isLive
-            ? 'border-neon-green/40 bg-neon-green-dim text-neon-green shadow-[0_0_20px_var(--neon-green)]'
-            : 'border-zinc-600 bg-zinc-800/50 text-zinc-400'
-        }`}>
-          <span className={`h-2 w-2 rounded-full ${isLive ? 'bg-neon-green animate-pulse' : 'bg-zinc-500'}`} />
+    <div className="flex w-full flex-col gap-12 lg:flex-row lg:gap-16">
+      <section className="flex-1 space-y-8 lg:py-6">
+        <div className={`inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-[12px] font-semibold shadow-premium ${isLive
+          ? 'border-neon-green/30 bg-neon-green-dim text-neon-green'
+          : 'border-zinc-700 bg-zinc-800/50 text-zinc-400'
+          }`}>
+          <span className={`h-2 w-2 rounded-full ${isLive ? 'bg-neon-green animate-soft-pulse' : 'bg-zinc-500'}`} />
           {isLive ? 'Live tea is brewing' : 'Demo mode — Configure Supabase'}
         </div>
 
-        <div className="space-y-4">
-          <h1 className="text-balance text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl text-zinc-50">
+        <div className="space-y-6 max-w-2xl">
+          <h1 className="text-balance text-[2.75rem] font-extrabold tracking-tight sm:text-[3.5rem] lg:text-[4rem] text-zinc-50 leading-[1.05]">
             Spill the{" "}
-            <span className="bg-gradient-to-r from-neon-green to-hot-pink bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-neon-green to-teal-500 bg-clip-text text-transparent italic pe-2">
               tea
             </span>
-            , stay anonymous.
+            <br />
+            stay anonymous.
           </h1>
-          <p className="max-w-xl text-sm font-medium text-zinc-300 sm:text-base">
-            Tea is a Gen Z-first anonymous social app. Drop your hottest takes
+          <p className="max-w-xl text-[16px] leading-[1.7] font-medium text-zinc-300">
+            Tea is a beautifully chaotic anonymous social app. Drop your hottest takes
             in themed{" "}
-            <span className="font-bold text-neon-green">Kettles</span>, get a
+            <span className="font-semibold text-zinc-100">Kettles</span>, get a
             random identity like{" "}
-            <span className="font-bold text-hot-pink">Spicy Matcha</span>, and
+            <span className="font-semibold text-neon-green">Spicy Matcha</span>, and
             watch the{" "}
-            <span className="font-bold text-hot-pink">Heat</span> rise as posts
+            <span className="font-semibold text-hot-pink">Heat</span> rise as posts
             start to boil.
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-4 pt-4">
           <Link
             href="/kettles"
-            className="group relative inline-flex items-center gap-2 rounded-full bg-neon-green px-5 py-2.5 text-sm font-bold text-charcoal shadow-[0_0_28px_var(--neon-green)] transition hover:brightness-110"
+            className="group relative inline-flex items-center justify-center gap-2.5 rounded-full bg-zinc-50 px-7 py-3.5 text-[15px] font-bold text-zinc-900 transition-all duration-300 hover:bg-white hover:shadow-[0_0_30px_rgba(255,255,255,0.15)] hover:-translate-y-0.5"
           >
             Start brewing
-            <span className="text-lg leading-none group-hover:translate-x-0.5 transition">
+            <span className="text-lg leading-none transition-transform duration-300 group-hover:translate-x-1">
               →
             </span>
           </Link>
           <Link
             href="/kettles"
-            className="inline-flex items-center gap-2 rounded-full glass border border-white/10 px-4 py-2 text-xs font-bold text-zinc-200 hover:border-hot-pink/40 hover:text-hot-pink"
+            className="inline-flex items-center justify-center gap-2 rounded-full glass border border-white/10 px-6 py-3.5 text-[14px] font-semibold text-zinc-300 hover:border-white/20 hover:text-white transition-all duration-300"
           >
-            View all kettles
+            Explore kettles
           </Link>
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-2 text-[11px] font-bold uppercase tracking-[0.22em] text-zinc-500">
-          <span className="rounded-full border border-white/10 glass px-3 py-1">
-            No profiles
+        <div className="mt-8 flex flex-wrap gap-2.5 pt-8 border-t border-white/5">
+          <span className="rounded-full border border-white/10 bg-charcoal-light/50 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-widest text-zinc-400">
+            Zero profiles
           </span>
-          <span className="rounded-full border border-white/10 glass px-3 py-1">
-            Random identities per thread
+          <span className="rounded-full border border-white/10 bg-charcoal-light/50 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-widest text-zinc-400">
+            Thread-based IDs
           </span>
-          <span className="rounded-full border border-white/10 glass px-3 py-1">
-            Heat-based trending
+          <span className="rounded-full border border-white/10 bg-charcoal-light/50 px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-widest text-zinc-400">
+            Heat trending
           </span>
         </div>
       </section>
 
-      <section className="flex-1 space-y-6">
+      <section className="flex-1 space-y-8 lg:max-w-[540px]">
         {/* Kettles Grid */}
         <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xs font-bold uppercase tracking-[0.22em] text-zinc-400">
+          <div className="flex items-center justify-between mb-5 px-1">
+            <h2 className="text-[12px] font-bold uppercase tracking-[0.2em] text-zinc-400">
               🔥 Hot Kettles
             </h2>
             <Link
               href="/kettles"
-              className="text-[11px] font-bold text-neon-green hover:underline"
+              className="text-[12px] font-semibold text-neon-green hover:text-sky-400 transition-colors flex items-center gap-1"
             >
-              View all →
+              View all <span>→</span>
             </Link>
           </div>
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             {kettles.slice(0, 4).map((kettle) => {
               const isBoiling = kettle.total_heat >= 100;
               return (
                 <Link
                   key={kettle.id}
                   href={`/k/${kettle.slug}`}
-                  className="glass-strong group relative overflow-hidden rounded-2xl border border-white/10 p-4 shadow-[0_0_30px_rgba(0,0,0,0.3)] transition hover:border-neon-green/30"
+                  className="glass-strong group relative overflow-hidden rounded-[20px] p-5 transition-all duration-300 hover:border-white/20 hover:-translate-y-1 hover:shadow-premium"
                 >
-                  <div className="mb-2 flex items-center justify-between gap-2">
-                    <h3 className="text-sm font-bold text-zinc-50 group-hover:text-neon-green transition-colors">
+                  <div className="mb-3 flex items-start justify-between gap-2">
+                    <h3 className="text-[15px] font-bold text-zinc-50 group-hover:text-neon-green transition-colors leading-tight">
                       {kettle.name}
                     </h3>
                     {isBoiling && (
-                      <span className="rounded-full bg-hot-pink-dim border border-hot-pink/30 px-2 py-0.5 text-[10px] font-bold text-hot-pink">
+                      <span className="rounded-full bg-hot-pink-dim border border-hot-pink/20 px-2 py-0.5 text-[10px] font-bold text-hot-pink whitespace-nowrap">
                         🔥 Boiling
                       </span>
                     )}
                   </div>
-                  <p className="mb-3 text-xs font-medium text-zinc-400 line-clamp-2">
+                  <p className="mb-5 text-[13px] font-medium text-zinc-400 line-clamp-2 leading-relaxed">
                     {kettle.description}
                   </p>
-                  <div className="flex items-center justify-between text-[11px] font-medium text-zinc-500">
-                    <div className="flex items-center gap-2">
-                      <div className="relative h-1.5 w-20 overflow-hidden rounded-full bg-charcoal-light">
+                  <div className="mt-auto flex items-center justify-between text-[11px] font-semibold text-zinc-500">
+                    <div className="flex items-center gap-3">
+                      <div className="relative h-1.5 w-16 overflow-hidden rounded-full bg-zinc-800/80 shadow-inner">
                         <div
-                          className={`h-full ${isBoiling ? 'bg-gradient-to-r from-hot-pink to-orange-500' : 'bg-gradient-to-r from-neon-green to-hot-pink'}`}
+                          className={`h-full ${isBoiling ? 'bg-gradient-to-r from-hot-pink to-indigo-500' : 'bg-gradient-to-r from-neon-green to-teal-500'}`}
                           style={{ width: `${Math.min(kettle.total_heat, 100)}%` }}
                         />
                       </div>
-                      <span className={isBoiling ? 'text-hot-pink' : 'text-neon-green'}>
+                      <span className={`tabular-nums ${isBoiling ? 'text-hot-pink' : 'text-neon-green'}`}>
                         {kettle.total_heat}
-                        <span className="ms-0.5 text-[9px] uppercase text-zinc-500">
-                          Heat
-                        </span>
                       </span>
                     </div>
-                    <span className="text-[10px] text-zinc-500">
+                    <span className="text-[11px] text-zinc-500 bg-zinc-800/40 px-2 py-0.5 rounded-md">
                       {kettle.post_count} posts
                     </span>
                   </div>
@@ -274,48 +271,51 @@ export default async function Home() {
           </div>
         </div>
 
-        {/* Live Feed */}
-        <div className="glass-strong space-y-3 rounded-2xl border border-hot-pink/30 p-4 shadow-[0_0_40px_var(--hot-pink)]">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-[0.18em] text-hot-pink">
-              ☕ Trending Tea
+        {/* Live Feed Component */}
+        <div className="glass-strong rounded-[24px] p-6 shadow-premium relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-hot-pink/5 rounded-full blur-[80px] -z-10 translate-x-1/2 -translate-y-1/2"></div>
+
+          <div className="flex items-center justify-between mb-5">
+            <span className="text-[12px] font-bold uppercase tracking-[0.2em] text-hot-pink flex items-center gap-2">
+              <span className="text-base">☕</span> Trending Tea
             </span>
-            <span className="text-[10px] font-medium text-zinc-400">
+            <span className="text-[11px] font-semibold text-zinc-400">
               Sorted by heat
             </span>
           </div>
-          <div className="space-y-2">
+
+          <div className="space-y-3">
             {trendingPosts.map((post) => {
               const isBoiling = post.heat_score >= 100;
               return (
                 <Link
                   key={post.id}
                   href={`/k/${post.kettle_slug}`}
-                  className="flex items-start justify-between gap-3 rounded-xl glass border border-white/5 px-3 py-2.5 hover:border-neon-green/20 transition-colors"
+                  className="group flex flex-col gap-3 rounded-2xl bg-charcoal/40 border border-white/5 p-4 hover:bg-charcoal/60 hover:border-white/10 transition-all duration-300"
                 >
-                  <div className="space-y-1 flex-1 min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="rounded-full bg-charcoal-light px-2 py-0.5 text-[10px] font-bold text-zinc-300">
-                        {post.kettle_name}
-                      </span>
-                      <span className="rounded-full border border-neon-green/40 bg-neon-green-dim px-2 py-0.5 text-[10px] font-bold text-neon-green">
-                        {post.anonymous_identity}
-                      </span>
-                      <span className="text-[9px] text-zinc-500">
-                        {timeAgo(post.created_at)}
-                      </span>
-                    </div>
-                    <p className="text-xs font-medium text-zinc-100 line-clamp-2">
-                      {post.content}
-                    </p>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="rounded-md bg-zinc-800/80 px-2 py-1 text-[10px] font-bold text-zinc-300">
+                      k/{post.kettle_slug}
+                    </span>
+                    <span className="text-[11px] font-bold text-zinc-400">•</span>
+                    <span className="text-[11.5px] font-bold text-neon-green group-hover:text-sky-400 transition-colors">
+                      {post.anonymous_identity}
+                    </span>
+                    <span className="ml-auto text-[10px] font-medium text-zinc-500 whitespace-nowrap">
+                      {timeAgo(post.created_at)}
+                    </span>
                   </div>
-                  <div className="flex flex-col items-end gap-1 shrink-0">
-                    <span className={`rounded-full px-2 py-1 text-[10px] font-bold ${
-                      isBoiling
-                        ? 'bg-hot-pink-dim border border-hot-pink/30 text-hot-pink'
-                        : 'bg-neon-green-dim border border-neon-green/30 text-neon-green'
-                    }`}>
-                      {isBoiling ? '🔥' : '+'}{post.heat_score} Heat
+
+                  <p className="text-[14px] font-medium text-zinc-100 line-clamp-2 leading-relaxed">
+                    {post.content}
+                  </p>
+
+                  <div className="mt-1 flex items-center">
+                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold flex items-center gap-1 ${isBoiling
+                      ? 'bg-hot-pink-dim text-hot-pink'
+                      : 'bg-neon-green-dim text-neon-green'
+                      }`}>
+                      {isBoiling ? '🔥' : '📈'} {post.heat_score} Heat
                     </span>
                   </div>
                 </Link>
@@ -325,8 +325,8 @@ export default async function Home() {
         </div>
 
         {!isLive && (
-          <p className="text-[11px] font-medium text-zinc-500">
-            This is a preview with sample data. Add Supabase credentials to see live tea.
+          <p className="text-[12px] font-medium text-zinc-500 text-center px-4">
+            This is a preview with sample data. Add your Supabase credentials to spin up the real kettle.
           </p>
         )}
       </section>

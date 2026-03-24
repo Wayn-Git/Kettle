@@ -129,127 +129,126 @@ export default async function KettlesPage() {
   const boilingCount = kettles.filter((k) => k.total_heat >= 100).length;
 
   return (
-    <div className="w-full space-y-8">
+    <div className="w-full space-y-10">
       {/* Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <Link
-              href="/"
-              className="text-xs font-bold text-zinc-500 hover:text-neon-green transition-colors"
-            >
-              ← Home
-            </Link>
+      <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between px-2">
+        <div className="space-y-4">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 text-[13px] font-semibold text-zinc-500 hover:text-zinc-300 transition-colors"
+          >
+            <span className="text-lg leading-none">←</span> Back Home
+          </Link>
+          <div className="space-y-1.5">
+            <h1 className="text-3xl font-bold tracking-tight text-zinc-50 sm:text-4xl">
+              Explore Kettles
+            </h1>
+            <p className="text-[15px] font-medium text-zinc-400">
+              {kettles.length} active spaces • {boilingCount} boiling right now
+            </p>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-50 sm:text-3xl">
-            All Kettles
-          </h1>
-          <p className="text-sm font-medium text-zinc-400">
-            {kettles.length} kettles • {boilingCount} boiling right now
-          </p>
         </div>
 
-        <div className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-bold ${
-          isLive
-            ? 'border-neon-green/40 bg-neon-green-dim text-neon-green shadow-[0_0_16px_var(--neon-green)]'
-            : 'border-zinc-600 bg-zinc-800/50 text-zinc-400'
-        }`}>
-          <span className={`h-2 w-2 rounded-full ${isLive ? 'bg-neon-green animate-pulse' : 'bg-zinc-500'}`} />
+        <div className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-[12px] font-semibold shadow-sm ${isLive
+            ? 'border-neon-green/30 bg-neon-green-dim text-neon-green'
+            : 'border-zinc-700 bg-zinc-800/50 text-zinc-400'
+          }`}>
+          <span className={`h-2.5 w-2.5 rounded-full ${isLive ? 'bg-neon-green animate-soft-pulse' : 'bg-zinc-500'}`} />
           {isLive ? 'Live data' : 'Demo mode'}
         </div>
       </div>
 
       {/* Stats bar */}
-      <div className="glass-strong flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/10 p-4">
-        <div className="flex items-center gap-6">
-          <div className="text-center">
-            <p className="text-2xl font-bold text-neon-green">{kettles.length}</p>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Kettles</p>
+      <div className="glass-strong flex flex-col sm:flex-row items-center justify-between gap-6 rounded-[24px] border border-white/5 p-6 shadow-premium">
+        <div className="flex w-full sm:w-auto items-center justify-around sm:justify-start gap-8 sm:gap-10 sm:px-4">
+          <div className="text-center sm:text-left">
+            <p className="text-3xl font-extrabold text-zinc-100">{kettles.length}</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-zinc-500 mt-1">Kettles</p>
           </div>
-          <div className="h-8 w-px bg-white/10" />
-          <div className="text-center">
-            <p className="text-2xl font-bold text-hot-pink">{boilingCount}</p>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Boiling</p>
+          <div className="h-12 w-px bg-white/10 hidden sm:block" />
+          <div className="text-center sm:text-left">
+            <p className="text-3xl font-extrabold text-hot-pink">{boilingCount}</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-zinc-500 mt-1">Boiling</p>
           </div>
-          <div className="h-8 w-px bg-white/10" />
-          <div className="text-center">
-            <p className="text-2xl font-bold text-zinc-100">
+          <div className="h-12 w-px bg-white/10 hidden sm:block" />
+          <div className="text-center sm:text-left">
+            <p className="text-3xl font-extrabold text-neon-green">
               {kettles.reduce((sum, k) => sum + k.post_count, 0)}
             </p>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-zinc-500">Total Posts</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-zinc-500 mt-1">Total Posts</p>
           </div>
         </div>
-        <p className="text-[11px] font-medium text-zinc-500">
-          🔥 Kettles boil at 100+ heat
+        <p className="text-[12px] font-semibold text-zinc-400 flex items-center gap-2 bg-charcoal/40 px-4 py-2 rounded-full border border-white/5">
+          <span className="text-base">🔥</span> Kettles boil at 100+ heat
         </p>
       </div>
 
       {/* Kettles Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {sortedKettles.map((kettle) => {
           const isBoiling = kettle.total_heat >= 100;
           return (
             <Link
               key={kettle.id}
               href={`/k/${kettle.slug}`}
-              className={`glass-strong group relative overflow-hidden rounded-2xl border p-5 shadow-lg transition-all hover:scale-[1.02] ${
-                isBoiling
-                  ? 'border-hot-pink/40 shadow-[0_0_30px_var(--hot-pink)]'
-                  : 'border-white/10 hover:border-neon-green/30'
-              }`}
+              className={`glass-strong group relative flex flex-col overflow-hidden rounded-[20px] p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-premium ${isBoiling
+                  ? 'border border-hot-pink/10 hover:border-hot-pink/30'
+                  : 'border border-white/5 hover:border-white/20'
+                }`}
             >
-              {/* Boiling badge */}
-              {isBoiling && (
-                <div className="absolute right-3 top-3">
-                  <span className="rounded-full bg-hot-pink-dim border border-hot-pink/30 px-2 py-1 text-[10px] font-bold text-hot-pink animate-pulse">
-                    🔥 BOILING
-                  </span>
-                </div>
-              )}
-
-              <div className="space-y-3">
-                <div>
-                  <h2 className={`text-lg font-bold transition-colors ${
-                    isBoiling
-                      ? 'text-hot-pink group-hover:text-hot-pink'
-                      : 'text-zinc-50 group-hover:text-neon-green'
+              {/* Card Header & Content */}
+              <div className="mb-6 flex-1 pr-6 relative">
+                <h2 className={`text-xl font-bold tracking-tight mb-2 transition-colors ${isBoiling
+                    ? 'text-zinc-50 group-hover:text-hot-pink'
+                    : 'text-zinc-50 group-hover:text-neon-green'
                   }`}>
-                    {kettle.name}
-                  </h2>
-                  <p className="mt-1 text-xs font-medium text-zinc-400 line-clamp-2">
-                    {kettle.description}
-                  </p>
-                </div>
+                  {kettle.name}
+                </h2>
+                <p className="text-[13px] font-medium leading-relaxed text-zinc-400 line-clamp-3">
+                  {kettle.description}
+                </p>
 
-                {/* Heat bar */}
-                <div className="space-y-1">
-                  <div className="flex items-center justify-between text-[10px] font-bold">
-                    <span className={isBoiling ? 'text-hot-pink' : 'text-neon-green'}>
-                      {kettle.total_heat} Heat
+                {/* Boiling badge inline or absolute depending on design - let's make it absolute for cleaner layout */}
+                {isBoiling && (
+                  <div className="absolute right-0 top-0 pt-0.5">
+                    <span className="rounded-md bg-hot-pink/10 border border-hot-pink/20 p-1.5 flex items-center justify-center shadow-sm">
+                      <span className="text-sm">🔥</span>
                     </span>
-                    <span className="text-zinc-500">
+                  </div>
+                )}
+              </div>
+
+              {/* Card Footer: Heat & Stats */}
+              <div className="mt-auto space-y-4">
+                {/* Heat bar */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-[11px] font-bold tracking-wide">
+                    <span className={isBoiling ? 'text-hot-pink' : 'text-neon-green'}>
+                      {kettle.total_heat} HEAT
+                    </span>
+                    <span className={isBoiling ? 'text-hot-pink/70' : 'text-zinc-500'}>
                       {Math.min(kettle.total_heat, 100)}%
                     </span>
                   </div>
-                  <div className="h-2 w-full overflow-hidden rounded-full bg-charcoal-light">
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-800/80 shadow-inner">
                     <div
-                      className={`h-full transition-all duration-500 ${
-                        isBoiling
-                          ? 'bg-gradient-to-r from-hot-pink via-orange-500 to-yellow-500 animate-pulse'
-                          : 'bg-gradient-to-r from-neon-green to-hot-pink'
-                      }`}
+                      className={`h-full transition-all duration-700 ease-out ${isBoiling
+                          ? 'bg-gradient-to-r from-hot-pink to-indigo-500'
+                          : 'bg-gradient-to-r from-neon-green to-teal-500'
+                        }`}
                       style={{ width: `${Math.min(kettle.total_heat, 100)}%` }}
                     />
                   </div>
                 </div>
 
-                {/* Stats */}
-                <div className="flex items-center justify-between border-t border-white/5 pt-3">
-                  <div className="flex items-center gap-3 text-[11px] font-medium text-zinc-500">
-                    <span>📝 {kettle.post_count} posts</span>
+                {/* Meta Stats */}
+                <div className="flex items-center justify-between border-t border-white/5 pt-4">
+                  <div className="flex items-center gap-2 text-[12px] font-semibold text-zinc-500 bg-charcoal-light/30 px-2.5 py-1 rounded-md">
+                    <span>📝</span>
+                    <span>{kettle.post_count} posts</span>
                   </div>
                   {kettle.last_activity && (
-                    <span className="text-[10px] font-medium text-zinc-500">
+                    <span className="text-[11px] font-medium text-zinc-500 truncate max-w-[120px]">
                       Active {timeAgo(kettle.last_activity)}
                     </span>
                   )}
@@ -262,22 +261,25 @@ export default async function KettlesPage() {
 
       {/* Empty state */}
       {kettles.length === 0 && (
-        <div className="glass-strong rounded-2xl border border-dashed border-white/10 p-12 text-center">
-          <p className="text-sm font-medium text-zinc-400 mb-4">
-            No kettles found. Check back later!
+        <div className="glass-strong rounded-[24px] border border-dashed border-white/10 p-16 text-center max-w-2xl mx-auto mt-10 shadow-premium">
+          <div className="text-4xl mb-4">🫖</div>
+          <h3 className="text-xl font-bold text-zinc-100 mb-2">No Kettles Found</h3>
+          <p className="text-[14px] font-medium text-zinc-400 mb-8 max-w-sm mx-auto">
+            It's quiet in here. Either there's a problem with the connection, or no one has started brewing yet.
           </p>
           <Link
             href="/"
-            className="inline-flex items-center gap-2 rounded-full bg-neon-green px-4 py-2 text-xs font-bold text-charcoal"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-50 px-6 py-3 text-[14px] font-bold text-zinc-900 transition-all duration-300 hover:bg-white hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:-translate-y-0.5"
           >
-            ← Back to home
+            <span className="text-lg leading-none transition-transform duration-300 hover:-translate-x-1">←</span>
+            Back to Home
           </Link>
         </div>
       )}
 
       {!isLive && (
-        <p className="text-center text-[11px] font-medium text-zinc-500">
-          This is demo data. Configure Supabase to see live kettles.
+        <p className="text-center text-[12px] font-medium text-zinc-500 py-4">
+          This is demo data. Configure Supabase to see real kettles boiling.
         </p>
       )}
     </div>

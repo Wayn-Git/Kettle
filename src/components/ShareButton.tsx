@@ -37,13 +37,17 @@ export function ShareButton({ url, className = '' }: ShareButtonProps) {
   return (
     <motion.button
       type="button"
-      onClick={handleShare}
-      className={`inline-flex items-center gap-1 text-[11px] font-medium text-zinc-500 hover:text-zinc-300 ${className}`}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      onClick={(e) => {
+        e.stopPropagation();
+        e.preventDefault();
+        handleShare();
+      }}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-300 ${className}`}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
       title="Share this post"
     >
-      🔗 Share
+      🔗 <span className="hidden sm:inline">Share</span>
     </motion.button>
   );
 }

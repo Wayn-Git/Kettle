@@ -43,16 +43,19 @@ const container = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.06, delayChildren: 0.04 },
+    transition: { staggerChildren: 0.08, delayChildren: 0.04 },
   },
 };
 
 const cardMotion = {
-  hidden: { opacity: 0, y: 16 },
+  hidden: { opacity: 0, y: 12 },
   show: {
     opacity: 1,
     y: 0,
-    transition: { duration: 0.35 },
+    transition: {
+      duration: 0.4,
+      ease: [0.25, 1, 0.5, 1]
+    },
   },
 };
 
@@ -82,7 +85,7 @@ function buildReplyTree(posts: Post[]): Post[] {
   // Sort replies by created_at (oldest first for conversation flow)
   const sortReplies = (post: Post): Post => {
     if (post.replies && post.replies.length > 0) {
-      post.replies.sort((a, b) => 
+      post.replies.sort((a, b) =>
         new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
       );
       post.replies.forEach(sortReplies);
@@ -104,9 +107,9 @@ function countAllReplies(post: Post): number {
   return count;
 }
 
-function PostCard({ 
-  post, 
-  kettleId, 
+function PostCard({
+  post,
+  kettleId,
   kettleName,
   kettleSlug,
   depth = 0,
@@ -114,8 +117,8 @@ function PostCard({
   expandedState,
   onToggleExpand,
   onExpandPost
-}: { 
-  post: Post; 
+}: {
+  post: Post;
   kettleId: string;
   kettleName: string;
   kettleSlug: string;
@@ -132,14 +135,14 @@ function PostCard({
   const totalReplyCount = countAllReplies(post);
   const isNested = depth > 0;
   const maxDepth = 5; // Max nesting level for UI
-  
+
   // Determine expansion state
   const isExplicitlyExpanded = expandedState.expanded.includes(post.id);
   const isExplicitlyCollapsed = expandedState.collapsed.includes(post.id);
-  
+
   // Default: expand first 2 levels automatically
   const isDefaultExpanded = depth < 2 && directReplyCount > 0;
-  
+
   // Final expansion state: explicitly set states take priority, then fall back to default
   const isExpanded = isExplicitlyExpanded || (isDefaultExpanded && !isExplicitlyCollapsed);
 
@@ -160,82 +163,78 @@ function PostCard({
   return (
     <motion.article
       variants={cardMotion}
-      className={`glass-strong relative overflow-hidden rounded-2xl border p-4 shadow-[0_0_30px_rgba(0,0,0,0.4)] ${
-        isNested 
-          ? 'border-l-2 border-l-neon-green/40 border-white/5' 
-          : 'border-white/10'
-      }`}
-      style={{ marginLeft: isNested ? Math.min(depth * 16, 48) : 0 }}
+      className={`glass-strong relative overflow-hidden rounded-[20px] p-[1.125rem] transition-colors duration-300 ${isNested
+        ? 'border-l-[3px] border-l-neon-green/30 border-y border-r border-white/5 bg-charcoal/20 hover:bg-charcoal/30'
+        : 'border border-white/10 hover:border-white/20'
+        }`}
+      style={{ marginLeft: isNested ? Math.min(depth * 20, 48) : 0 }}
       layout
     >
-      <div className="mb-3 flex items-start justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <div className={`flex items-center justify-center rounded-full border bg-neon-green-dim text-sm ${
-            isNested ? 'h-7 w-7 border-neon-green/20' : 'h-9 w-9 border-neon-green/30'
-          }`}>
+      <div className="mb-3.5 flex items-start justify-between gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className={`flex items-center justify-center rounded-full border bg-neon-green-dim text-sm transition-transform hover:scale-105 duration-300 ${isNested ? 'h-7 w-7 border-neon-green/20 text-xs' : 'h-10 w-10 border-neon-green/30'
+            }`}>
             {isNested ? '💬' : '☕'}
           </div>
           <div className="flex flex-col">
-            <span className={`font-bold text-neon-green ${isNested ? 'text-[11px]' : 'text-xs'}`}>
+            <span className={`font-semibold tracking-tight text-neon-green ${isNested ? 'text-[13px]' : 'text-sm'}`}>
               {identity}
             </span>
-            <span className="text-[10px] font-medium text-zinc-500">
+            <span className="text-[11px] font-medium text-zinc-500 flex items-center gap-1.5">
               {timeAgo(post.created_at)}
-              {isNested && <span className="ml-1 text-zinc-600">• reply</span>}
+              {isNested && <><span className="w-1 h-1 rounded-full bg-zinc-600"></span> reply</>}
             </span>
           </div>
         </div>
 
         {/* Heat voting on ALL posts including replies */}
-        <VoteButtons 
-          postId={post.id} 
+        <VoteButtons
+          postId={post.id}
           initialHeat={post.heat_score ?? 0}
           size="sm"
         />
       </div>
 
-      <p className={`mb-3 font-medium text-zinc-100 leading-relaxed ${isNested ? 'text-[13px]' : 'text-sm'}`}>
+      <p className={`mb-4 text-zinc-100 leading-[1.6] ${isNested ? 'text-[14px] font-regular' : 'text-[15px] font-medium'}`}>
         {post.content}
       </p>
 
       {post.image_url && (
         <motion.div
-          className="mb-3 overflow-hidden rounded-xl border border-white/10 bg-black/40"
+          className="mb-4 overflow-hidden rounded-2xl border border-white/10 bg-black/40"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
+          transition={{ delay: 0.15 }}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={post.image_url}
             alt="Attached receipt"
-            className="max-h-72 w-full object-cover"
+            className="max-h-80 w-full object-cover rounded-2xl"
           />
         </motion.div>
       )}
 
       {/* Reply actions - available on all posts up to maxDepth */}
-      <div className="flex items-center gap-3 border-t border-white/5 pt-3">
+      <div className="flex items-center gap-4 pt-3 mt-1">
         {depth < maxDepth && (
           <motion.button
             type="button"
             onClick={() => setShowReplyModal(true)}
-            className="inline-flex items-center gap-1.5 rounded-full border border-neon-green/30 bg-neon-green-dim px-3 py-1.5 text-[11px] font-bold text-neon-green hover:bg-neon-green/20"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            className="inline-flex items-center gap-1.5 rounded-full border border-zinc-700/50 bg-zinc-800/30 px-3.5 py-1.5 text-[12px] font-semibold text-zinc-300 hover:bg-zinc-800/80 hover:text-white transition-colors duration-200"
+            whileTap={{ scale: 0.96 }}
           >
             💬 Reply
           </motion.button>
         )}
-        
+
         {directReplyCount > 0 && (
           <motion.button
             type="button"
             onClick={handleToggleExpand}
-            className="inline-flex items-center gap-1.5 text-[11px] font-medium text-zinc-400 hover:text-zinc-200"
-            whileHover={{ scale: 1.02 }}
+            className="inline-flex items-center gap-1.5 text-[12px] font-semibold text-zinc-400 hover:text-zinc-200"
           >
-            <span className="transition-transform duration-200" style={{ 
+            <span className="transition-transform duration-300 ease-in-out" style={{
               display: 'inline-block',
               transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)'
             }}>
@@ -245,29 +244,31 @@ function PostCard({
           </motion.button>
         )}
 
-        {/* Share button */}
-        <ShareButton 
-          url={`${typeof window !== 'undefined' ? window.location.origin : ''}/k/${kettleSlug}#post-${post.id}`}
-        />
-        
-        {/* Report button */}
-        <ReportButton key={`report-${post.id}`} postId={post.id} />
+        <div className="ml-auto flex items-center gap-2">
+          {/* Share button */}
+          <ShareButton
+            url={`${typeof window !== 'undefined' ? window.location.origin : ''}/k/${kettleSlug}#post-${post.id}`}
+          />
+
+          {/* Report button */}
+          <ReportButton key={`report-${post.id}`} postId={post.id} />
+        </div>
       </div>
 
       {/* Nested Replies - Always visible when expanded */}
       <AnimatePresence>
         {isExpanded && post.replies && post.replies.length > 0 && (
           <motion.div
-            className="mt-3 space-y-3"
+            className="mt-4 space-y-3 relative"
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
           >
             {post.replies.map((reply) => (
-              <MemoizedPostCard 
-                key={reply.id} 
-                post={reply} 
+              <MemoizedPostCard
+                key={reply.id}
+                post={reply}
                 kettleId={kettleId}
                 kettleName={kettleName}
                 kettleSlug={kettleSlug}
@@ -306,7 +307,7 @@ export function KettleFeed({ kettle, posts: initialPosts }: KettleFeedProps) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [posts, setPosts] = useState(initialPosts);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  
+
   // Proper React state for expansion tracking - using arrays for proper React diffing
   const [expandedState, setExpandedState] = useState<ExpandedState>({
     expanded: [],
@@ -317,7 +318,7 @@ export function KettleFeed({ kettle, posts: initialPosts }: KettleFeedProps) {
     setExpandedState(prev => {
       const newExpanded = prev.expanded.filter(id => id !== postId);
       const newCollapsed = prev.collapsed.filter(id => id !== postId);
-      
+
       if (currentlyExpanded) {
         // Currently expanded -> collapse it
         newCollapsed.push(postId);
@@ -325,15 +326,15 @@ export function KettleFeed({ kettle, posts: initialPosts }: KettleFeedProps) {
         // Currently collapsed -> expand it
         newExpanded.push(postId);
       }
-      
+
       return { expanded: newExpanded, collapsed: newCollapsed };
     });
   }, []);
 
   const handleExpandPost = useCallback((postId: string) => {
     setExpandedState(prev => {
-      const newExpanded = prev.expanded.includes(postId) 
-        ? prev.expanded 
+      const newExpanded = prev.expanded.includes(postId)
+        ? prev.expanded
         : [...prev.expanded, postId];
       const newCollapsed = prev.collapsed.filter(id => id !== postId);
       return { expanded: newExpanded, collapsed: newCollapsed };
@@ -357,7 +358,7 @@ export function KettleFeed({ kettle, posts: initialPosts }: KettleFeedProps) {
   // Function to fetch latest posts (silent - no toast)
   const fetchLatestPosts = useCallback(async () => {
     if (!isSupabaseConfigured()) return;
-    
+
     try {
       const supabase = createSupabaseClient();
       const { data: newPosts, error } = await supabase
@@ -366,12 +367,12 @@ export function KettleFeed({ kettle, posts: initialPosts }: KettleFeedProps) {
         .eq("kettle_id", kettle.id)
         .eq("is_hidden", false)
         .order("created_at", { ascending: false });
-      
+
       if (error) {
         console.error('Failed to fetch posts:', error);
         return;
       }
-      
+
       if (newPosts) {
         setPosts(newPosts);
       }
@@ -385,7 +386,7 @@ export function KettleFeed({ kettle, posts: initialPosts }: KettleFeedProps) {
     if (!isSupabaseConfigured()) return;
 
     const supabase = createSupabaseClient();
-    
+
     const channel = supabase
       .channel(`kettle-${kettle.id}-realtime`)
       .on(
@@ -453,103 +454,110 @@ export function KettleFeed({ kettle, posts: initialPosts }: KettleFeedProps) {
 
   return (
     <motion.div
-      className="flex w-full flex-col gap-6 lg:flex-row lg:gap-10"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.4 }}
+      className="flex w-full flex-col gap-8 lg:flex-row lg:gap-12"
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
     >
-      <section className="flex-1 space-y-4 lg:max-w-xs">
+      <section className="flex-1 space-y-6 lg:max-w-sm sticky top-24 self-start">
         <motion.div
-          className={`inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[11px] font-bold shadow-lg ${
-            isBoiling
-              ? 'border-hot-pink/40 bg-hot-pink-dim text-hot-pink shadow-[0_0_20px_var(--hot-pink)]'
-              : 'border-neon-green/40 bg-neon-green-dim text-neon-green shadow-[0_0_20px_var(--neon-green)]'
-          }`}
+          className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-[11.5px] font-semibold shadow-premium ${isBoiling
+            ? 'border-hot-pink/30 bg-hot-pink-dim text-hot-pink'
+            : 'border-neon-green/30 bg-neon-green-dim text-neon-green'
+            }`}
           initial={{ opacity: 0, x: -8 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1, duration: 0.3 }}
+          transition={{ delay: 0.1, duration: 0.4 }}
         >
-          <span className={`h-2 w-2 rounded-full animate-pulse ${isBoiling ? 'bg-hot-pink' : 'bg-neon-green'}`} />
+          <span className={`h-2 w-2 rounded-full animate-soft-pulse ${isBoiling ? 'bg-hot-pink' : 'bg-neon-green'}`} />
           {isBoiling ? '🔥 Kettle is BOILING' : 'Kettle is live'}
         </motion.div>
 
-        <div className="space-y-3">
-          <h1 className="text-2xl font-bold tracking-tight text-zinc-50 sm:text-3xl">
+        <div className="space-y-4">
+          <h1 className="text-4xl font-extrabold tracking-tight text-zinc-50 sm:text-5xl leading-tight">
             {kettle.name}
           </h1>
           {kettle.description && (
-            <p className="text-sm font-medium text-zinc-300">
+            <p className="text-[15px] leading-[1.6] text-zinc-300">
               {kettle.description}
             </p>
           )}
         </div>
 
         {/* Kettle stats */}
-        <div className="glass-strong rounded-xl border border-white/10 p-3 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-500">
+        <div className="glass-strong rounded-2xl border border-white/5 p-5 space-y-4 shadow-sm">
+          <div className="flex items-center justify-between group">
+            <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-500">
               Total Heat
             </span>
-            <span className={`text-lg font-bold ${isBoiling ? 'text-hot-pink' : 'text-neon-green'}`}>
+            <span className={`text-xl font-extrabold transition-colors duration-300 ${isBoiling ? 'text-hot-pink group-hover:text-violet-400' : 'text-neon-green group-hover:text-sky-400'}`}>
               {totalHeat}
             </span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-charcoal-light">
+          <div className="h-2.5 w-full overflow-hidden rounded-full bg-zinc-800/50 shadow-inner">
             <motion.div
-              className={`h-full ${isBoiling ? 'bg-gradient-to-r from-hot-pink to-orange-500' : 'bg-gradient-to-r from-neon-green to-hot-pink'}`}
+              className={`h-full ${isBoiling ? 'bg-gradient-to-r from-hot-pink to-indigo-500' : 'bg-gradient-to-r from-neon-green to-teal-500'}`}
               initial={{ width: 0 }}
               animate={{ width: `${Math.min(totalHeat, 100)}%` }}
-              transition={{ duration: 0.8, ease: 'easeOut' }}
+              transition={{ duration: 1, ease: 'easeOut' }}
             />
           </div>
-          <div className="flex items-center justify-between text-[10px] font-medium text-zinc-500">
+          <div className="flex items-center justify-between text-[11px] font-medium text-zinc-400">
             <span>{parentPostCount} posts • {totalReplies} replies</span>
-            <span>{isBoiling ? '🔥 On fire!' : `${Math.max(100 - totalHeat, 0)} to boil`}</span>
+            <span>{isBoiling ? '🔥 Boiling' : `${Math.max(100 - totalHeat, 0)} to boil`}</span>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-3 pt-2">
           <motion.button
             type="button"
             onClick={() => setIsModalOpen(true)}
-            className="group inline-flex items-center gap-2 rounded-full bg-neon-green px-4 py-2 text-xs font-bold text-charcoal shadow-[0_0_28px_var(--neon-green)]"
-            whileHover={{ scale: 1.03 }}
+            className="group flex-1 inline-flex justify-center items-center gap-2 rounded-full bg-zinc-50 px-5 py-3 text-[14px] font-bold text-zinc-900 transition-all hover:bg-white hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]"
+            whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
             Pour the Tea
-            <span className="text-base leading-none group-hover:translate-x-0.5 transition-transform">
+            <span className="text-lg leading-none transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110">
               ☕
             </span>
           </motion.button>
+
           <motion.button
             type="button"
             onClick={handleRefresh}
             disabled={isRefreshing}
-            className="inline-flex items-center gap-2 rounded-full border border-white/10 glass px-3 py-1.5 text-[11px] font-bold text-zinc-300 hover:border-hot-pink/40 hover:text-hot-pink disabled:opacity-50"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
+            className="inline-flex items-center justify-center p-3 rounded-full border border-white/10 glass text-zinc-300 hover:text-white hover:bg-white/5 disabled:opacity-50 transition-colors"
+            aria-label="Refresh Feed"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            {isRefreshing ? '⏳' : '🔄'} {isRefreshing ? 'Refreshing...' : 'Refresh'}
+            <span className={`text-lg leading-none ${isRefreshing ? 'animate-spin' : ''}`}>
+              ↻
+            </span>
           </motion.button>
         </div>
 
-        <p className="text-[11px] font-medium text-zinc-500">
-          💡 Real-time updates enabled. New posts and replies appear automatically!
+        <p className="text-[12px] font-medium text-zinc-500 flex items-center gap-2 pt-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-sky-500"></span>
+          </span>
+          Live updating
         </p>
       </section>
 
-      <section className="flex-1 space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xs font-bold uppercase tracking-[0.22em] text-zinc-400">
-            Kettle Feed
+      <section className="flex-1 space-y-5 lg:min-w-[600px] pb-12">
+        <div className="flex items-center justify-between border-b border-white/5 pb-3">
+          <h2 className="text-[12px] font-bold uppercase tracking-widest text-zinc-400">
+            Feed
           </h2>
-          <span className="text-[11px] font-medium text-zinc-500">
+          <span className="text-[12px] font-medium text-zinc-500 bg-zinc-800/30 px-2 py-1 rounded-md">
             {parentPostCount} {parentPostCount === 1 ? 'thread' : 'threads'}
           </span>
         </div>
 
         <motion.div
-          className="space-y-3"
+          className="space-y-4"
           variants={container}
           initial="hidden"
           animate="show"
@@ -558,26 +566,28 @@ export function KettleFeed({ kettle, posts: initialPosts }: KettleFeedProps) {
             {threadedPosts.length === 0 ? (
               <motion.div
                 key="empty"
-                className="glass-strong rounded-2xl border border-dashed border-white/10 p-6 text-center"
+                className="glass rounded-[24px] border border-dashed border-white/10 p-10 text-center shadow-sm"
                 variants={cardMotion}
               >
-                <p className="text-sm font-medium text-zinc-400 mb-2">
-                  No tea here yet. Be the first to pour.
+                <div className="text-4xl mb-3 opacity-50">🍃</div>
+                <h3 className="text-lg font-semibold text-zinc-200 mb-2">It's quiet here.</h3>
+                <p className="text-sm text-zinc-400 mb-6 max-w-[250px] mx-auto leading-relaxed">
+                  Be the first to step into the kettle and start the conversation.
                 </p>
                 <motion.button
                   type="button"
                   onClick={() => setIsModalOpen(true)}
-                  className="inline-flex items-center gap-2 rounded-full bg-neon-green px-4 py-2 text-xs font-bold text-charcoal"
-                  whileHover={{ scale: 1.03 }}
+                  className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-5 py-2.5 text-[13px] font-semibold text-white hover:bg-white/10 transition-colors"
+                  whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  ☕ Spill the first tea
+                  Start brewing ☕
                 </motion.button>
               </motion.div>
             ) : (
               threadedPosts.map((post) => (
-                <MemoizedPostCard 
-                  key={post.id} 
+                <MemoizedPostCard
+                  key={post.id}
                   post={post}
                   kettleId={kettle.id}
                   kettleName={kettle.name}
@@ -603,4 +613,5 @@ export function KettleFeed({ kettle, posts: initialPosts }: KettleFeedProps) {
     </motion.div>
   );
 }
+
 

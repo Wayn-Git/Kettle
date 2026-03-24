@@ -56,7 +56,7 @@ export function ReportButton({ postId }: ReportButtonProps) {
     try {
       if (isSupabaseConfigured()) {
         const supabase = createSupabaseClient();
-        
+
         // Get or create a fingerprint for the reporter
         let fingerprint = localStorage.getItem('tea-fingerprint');
         if (!fingerprint) {
@@ -91,108 +91,109 @@ export function ReportButton({ postId }: ReportButtonProps) {
       <motion.button
         type="button"
         onClick={handleOpen}
-        className="inline-flex items-center gap-1 text-[11px] font-medium text-zinc-600 hover:text-hot-pink"
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
+        className="inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-[11px] font-semibold text-zinc-500 transition-colors hover:bg-white/5 hover:text-zinc-300"
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
         title="Report this post"
       >
-        🚩
+        🚩 <span className="hidden sm:inline">Report</span>
       </motion.button>
 
       {mounted && createPortal(
         <AnimatePresence>
           {isOpen && (
             <motion.div
-              className="fixed inset-0 z-[100] flex items-center justify-center bg-charcoal/80 backdrop-blur-xl p-4"
+              className="fixed inset-0 z-[100] flex items-center justify-center bg-charcoal/80 backdrop-blur-xl p-4 sm:p-6"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={handleClose}
             >
               <motion.div
-                className="glass-strong w-full max-w-md rounded-2xl border border-white/10 p-5"
+                className="glass-strong relative w-full max-w-lg rounded-[24px] border border-white/10 p-6 sm:p-8 shadow-premium"
                 initial={{ opacity: 0, scale: 0.95, y: 10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 10 }}
                 onClick={(e) => e.stopPropagation()}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="text-lg font-bold text-zinc-100">Report Post</h3>
-                  <p className="text-xs text-zinc-500">Help keep Tea a safe space</p>
-                </div>
-                <button
-                  onClick={handleClose}
-                  className="text-zinc-400 hover:text-zinc-100"
-                >
-                  ✕
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <p className="text-xs font-bold uppercase text-zinc-500 mb-2">
-                    Why are you reporting this?
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
-                    {reportReasons.map((reason) => (
-                      <button
-                        key={reason.value}
-                        type="button"
-                        onClick={() => setSelectedReason(reason.value)}
-                        className={`rounded-xl p-3 text-left transition-all ${
-                          selectedReason === reason.value
-                            ? 'bg-hot-pink/20 border-hot-pink/50 border'
-                            : 'bg-white/5 border border-transparent hover:bg-white/10'
-                        }`}
-                      >
-                        <p className="text-sm font-bold text-zinc-100">{reason.label}</p>
-                        <p className="text-[10px] text-zinc-500">{reason.description}</p>
-                      </button>
-                    ))}
+              >
+                <div className="flex items-center justify-between mb-6 pr-6">
+                  <div>
+                    <h3 className="text-xl font-bold tracking-tight text-zinc-50">Report Post</h3>
+                    <p className="text-[13px] font-medium text-zinc-400 mt-1">Help keep Tea a safe space</p>
                   </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-bold uppercase text-zinc-500 mb-1 block">
-                    Additional details (optional)
-                  </label>
-                  <textarea
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    placeholder="Tell us more about why this post is problematic..."
-                    className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-sm text-zinc-100 placeholder:text-zinc-500 focus:border-hot-pink/50 focus:outline-none resize-none"
-                    rows={3}
-                    maxLength={500}
-                  />
-                </div>
-
-                <div className="flex gap-2 pt-2">
                   <button
-                    type="button"
                     onClick={handleClose}
-                    className="flex-1 rounded-xl bg-white/5 py-2.5 text-sm font-bold text-zinc-400 hover:bg-white/10"
+                    className="absolute right-4 top-4 rounded-full glass border border-white/5 px-2.5 py-1.5 text-xs font-bold text-zinc-400 hover:text-zinc-100 hover:bg-white/5 transition-colors"
                   >
-                    Cancel
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleSubmit}
-                    disabled={!selectedReason || isSubmitting}
-                    className="flex-1 rounded-xl bg-hot-pink py-2.5 text-sm font-bold text-white disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isSubmitting ? 'Submitting...' : 'Submit Report'}
+                    ✕
                   </button>
                 </div>
 
-                <p className="text-[10px] text-zinc-600 text-center">
-                  Reports are anonymous and reviewed by our mod team.
-                </p>
-              </div>
+                <div className="space-y-6">
+                  <div>
+                    <p className="text-[12px] font-bold uppercase tracking-[0.1em] text-zinc-500 mb-3">
+                      Why are you reporting this?
+                    </p>
+                    <div className="grid grid-cols-2 gap-3">
+                      {reportReasons.map((reason) => (
+                        <button
+                          key={reason.value}
+                          type="button"
+                          onClick={() => setSelectedReason(reason.value)}
+                          className={`rounded-[16px] p-3.5 text-left transition-all duration-200 border ${selectedReason === reason.value
+                            ? 'bg-violet-500/10 border-violet-500/30 ring-1 ring-violet-500/20'
+                            : 'bg-charcoal/40 border-white/5 hover:bg-white/5 hover:border-white/10'
+                            }`}
+                        >
+                          <p className={`text-[13px] font-bold ${selectedReason === reason.value ? 'text-violet-200' : 'text-zinc-200'}`}>
+                            {reason.label}
+                          </p>
+                          <p className="text-[11px] font-medium text-zinc-500 mt-1">{reason.description}</p>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[12px] font-bold uppercase tracking-[0.1em] text-zinc-500 mb-2 block">
+                      Additional details <span className="font-normal normal-case opacity-70">(optional)</span>
+                    </label>
+                    <textarea
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      placeholder="Tell us more about why this post is problematic..."
+                      className="w-full rounded-[16px] border border-white/10 glass p-3.5 text-[14px] font-medium text-zinc-100 placeholder:text-zinc-600 focus:border-violet-500/30 focus:ring-4 focus:ring-violet-500/10 focus:outline-none resize-none transition-all duration-300"
+                      rows={3}
+                      maxLength={500}
+                    />
+                  </div>
+
+                  <div className="flex gap-3 pt-2">
+                    <button
+                      type="button"
+                      onClick={handleClose}
+                      className="flex-1 rounded-full bg-white/5 py-3 text-[14px] font-bold text-zinc-300 hover:bg-white/10 hover:text-white transition-colors border border-transparent hover:border-white/10"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSubmit}
+                      disabled={!selectedReason || isSubmitting}
+                      className="flex-1 rounded-full bg-violet-500/90 py-3 text-[14px] font-bold text-white shadow-sm transition-all hover:bg-violet-500 hover:shadow-[0_0_20px_rgba(139,92,246,0.2)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
+                    >
+                      {isSubmitting ? 'Submitting...' : 'Submit Report'}
+                    </button>
+                  </div>
+
+                  <p className="text-[11px] font-medium text-zinc-500 text-center leading-relaxed">
+                    Reports are strictly anonymous and reviewed exclusively by our moderation team.
+                  </p>
+                </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>,
+          )}
+        </AnimatePresence>,
         document.body
       )}
     </>

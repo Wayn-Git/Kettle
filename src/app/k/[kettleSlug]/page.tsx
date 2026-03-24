@@ -32,20 +32,21 @@ export const dynamic = "force-dynamic";
 
 function SupabaseSetupMessage() {
   return (
-    <div className="glass-strong mx-auto max-w-lg rounded-2xl border border-hot-pink/30 p-6 text-center">
-      <p className="mb-2 text-sm font-bold text-zinc-200">
-        Supabase not configured
+    <div className="glass-strong mx-auto max-w-lg rounded-[24px] border border-hot-pink/20 p-8 text-center shadow-premium">
+      <p className="mb-3 text-[15px] font-bold text-zinc-100 flex items-center justify-center gap-2">
+        <span className="text-xl">⚠️</span> Supabase not configured
       </p>
-      <p className="mb-4 text-xs font-medium text-zinc-400">
-        Add <code className="rounded bg-charcoal-light px-1 py-0.5 text-neon-green">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
-        <code className="rounded bg-charcoal-light px-1 py-0.5 text-neon-green">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to{" "}
-        <code className="rounded bg-charcoal-light px-1 py-0.5 text-zinc-300">.env.local</code>, then restart the dev server.
+      <p className="mb-6 text-[13px] font-medium leading-relaxed text-zinc-400">
+        Add <code className="rounded-md bg-zinc-800/80 px-1.5 py-0.5 text-neon-green border border-white/5">NEXT_PUBLIC_SUPABASE_URL</code> and{" "}
+        <code className="rounded-md bg-zinc-800/80 px-1.5 py-0.5 text-neon-green border border-white/5">NEXT_PUBLIC_SUPABASE_ANON_KEY</code> to{" "}
+        <code className="rounded-md bg-zinc-800/80 px-1.5 py-0.5 text-zinc-300 border border-white/5">.env.local</code>, then restart the dev server.
       </p>
       <Link
         href="/"
-        className="inline-block rounded-full bg-neon-green px-4 py-2 text-xs font-bold text-charcoal"
+        className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-50 px-6 py-2.5 text-[13px] font-bold text-zinc-900 transition-all duration-300 hover:bg-white hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:-translate-y-0.5"
       >
-        Back to home
+        <span className="text-lg leading-none transition-transform duration-300 hover:-translate-x-1">←</span>
+        Back to Home
       </Link>
     </div>
   );
@@ -141,16 +142,17 @@ async function fetchKettleData(
 
 function KettleErrorDisplay({ message }: { message: string }) {
   return (
-    <div className="glass-strong mx-auto max-w-lg rounded-2xl border border-hot-pink/30 p-6 text-center">
-      <h2 className="mb-2 text-sm font-bold text-zinc-100">
-        Could not load this kettle
+    <div className="glass-strong mx-auto max-w-lg rounded-[24px] border border-hot-pink/20 p-8 text-center shadow-premium">
+      <h2 className="mb-3 text-[15px] font-bold text-zinc-100 flex items-center justify-center gap-2">
+        <span className="text-xl">⚠️</span> Could not load this kettle
       </h2>
-      <p className="mb-4 text-xs font-medium text-zinc-400">{message}</p>
+      <p className="mb-6 text-[13px] font-medium leading-relaxed text-zinc-400">{message}</p>
       <Link
         href="/"
-        className="inline-block rounded-full bg-neon-green px-4 py-2 text-xs font-bold text-charcoal"
+        className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-50 px-6 py-2.5 text-[13px] font-bold text-zinc-900 transition-all duration-300 hover:bg-white hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] hover:-translate-y-0.5"
       >
-        Back to home
+        <span className="text-lg leading-none transition-transform duration-300 hover:-translate-x-1">←</span>
+        Back to Home
       </Link>
     </div>
   );

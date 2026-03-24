@@ -91,7 +91,7 @@ export function PourTeaModal({
         console.error(insertError);
         setError(
           insertError.message ||
-            "Something went wrong while pouring the tea."
+          "Something went wrong while pouring the tea."
         );
         setIsSubmitting(false);
         return;
@@ -100,7 +100,7 @@ export function PourTeaModal({
       setContent("");
       setFile(null);
       onClose();
-      
+
       // Small delay to ensure Supabase has propagated the insert, then refresh
       setTimeout(async () => {
         if (onSuccess) {
@@ -128,7 +128,7 @@ export function PourTeaModal({
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-40 flex items-center justify-center bg-charcoal/80 backdrop-blur-xl p-4"
+          className="fixed inset-0 z-40 flex items-center justify-center bg-charcoal/80 backdrop-blur-xl p-4 sm:p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -136,7 +136,7 @@ export function PourTeaModal({
           onClick={handleClose}
         >
           <motion.div
-            className="glass-strong relative w-full max-w-md rounded-2xl border border-neon-green/30 p-5 shadow-[0_0_50px_var(--neon-green)]"
+            className="glass-strong relative w-full max-w-lg rounded-[24px] border border-white/10 p-6 sm:p-8 shadow-premium"
             initial={{ opacity: 0, scale: 0.94, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 8 }}
@@ -146,78 +146,88 @@ export function PourTeaModal({
             <motion.button
               type="button"
               onClick={handleClose}
-              className="absolute right-3 top-3 rounded-full glass px-2 py-1 text-xs font-bold text-zinc-400 hover:text-zinc-100"
+              className="absolute right-4 top-4 rounded-full glass border border-white/5 px-2.5 py-1.5 text-xs font-bold text-zinc-400 hover:text-zinc-100 hover:bg-white/5 transition-colors"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               ✕
             </motion.button>
 
-            <div className="mb-3 space-y-1">
-              <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-neon-green">
+            <div className="mb-5 space-y-1.5 pr-8">
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-neon-green">
                 {isReply ? '💬 Reply' : 'Pour the Tea'}
               </p>
-              <h2 className="text-sm font-bold text-zinc-50">
+              <h2 className="text-xl font-bold text-zinc-50 tracking-tight leading-tight">
                 {isReply ? (
                   <>Replying to <span className="text-neon-green">{replyingTo}</span></>
                 ) : (
                   <>New drop in <span className="text-neon-green">{kettleName}</span></>
                 )}
               </h2>
-              <p className="text-xs font-medium text-zinc-400">
+              <p className="text-[13px] font-medium text-zinc-400 mt-1">
                 Your identity will be{" "}
-                <span className="font-bold text-neon-green">
+                <span className="font-semibold text-neon-green">
                   {generatedIdentity}
                 </span>
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-2">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-bold text-zinc-300">
+                  <label className="text-[13px] font-semibold text-zinc-300">
                     What&apos;s the tea?
                   </label>
-                  <span className={`text-[10px] font-medium ${
-                    content.length > maxLength ? 'text-hot-pink' : 'text-zinc-500'
-                  }`}>
+                  <span className={`text-[11px] font-medium ${content.length > maxLength ? 'text-hot-pink' : 'text-zinc-500'
+                    }`}>
                     {content.length}/{maxLength}
                   </span>
                 </div>
-                <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  rows={4}
-                  className="w-full rounded-xl border border-white/10 glass p-3 text-sm font-medium text-zinc-100 outline-none transition focus:border-neon-green/50 focus:ring-2 focus:ring-neon-green/30"
-                  placeholder={isReply ? '"I heard that..."' : '"My roommate just…"'}
-                  maxLength={maxLength + 50}
-                />
+                <div className="relative">
+                  <textarea
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    rows={4}
+                    className="w-full rounded-[16px] border border-white/10 glass p-3.5 text-[15px] font-medium text-zinc-100 placeholder:text-zinc-600 outline-none transition-all duration-300 focus:border-neon-green/40 focus:ring-4 focus:ring-neon-green/10 resize-none"
+                    placeholder={isReply ? '"I heard that..."' : '"My roommate just…"'}
+                    maxLength={maxLength + 50}
+                  />
+                </div>
               </div>
 
               {!isReply && (
-                <div className="space-y-2">
-                  <label className="text-xs font-bold text-zinc-300">
-                    Add a receipt (optional)
+                <div className="space-y-3">
+                  <label className="text-[13px] font-semibold text-zinc-300">
+                    Add a receipt <span className="text-zinc-500 font-normal">(optional)</span>
                   </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setFile(e.target.files?.[0] ?? null)}
-                    className="block w-full text-xs text-zinc-400 file:mr-3 file:rounded-full file:border-0 file:bg-neon-green/20 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-neon-green hover:file:bg-neon-green/30"
-                  />
-                  {file && (
-                    <div className="flex items-center gap-2 text-[10px] text-zinc-400">
-                      <span>📎 {file.name}</span>
-                      <button
-                        type="button"
-                        onClick={() => setFile(null)}
-                        className="text-hot-pink hover:underline"
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  )}
-                  <p className="text-[10px] font-medium text-zinc-500">
+                  <div className="flex items-center gap-3">
+                    <input
+                      type="file"
+                      id="file-upload"
+                      accept="image/*"
+                      onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                      className="hidden"
+                    />
+                    <label
+                      htmlFor="file-upload"
+                      className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-charcoal-light/50 border border-white/10 px-4 py-2.5 text-[13px] font-semibold text-zinc-300 hover:bg-white/5 hover:border-white/20 hover:text-white transition-all duration-300"
+                    >
+                      <span className="text-lg">📸</span> Upload Image
+                    </label>
+                    {file && (
+                      <div className="flex items-center gap-2 text-[12px] text-zinc-400 bg-charcoal-light/30 px-3 py-1.5 rounded-lg border border-white/5">
+                        <span className="truncate max-w-[150px]">{file.name}</span>
+                        <button
+                          type="button"
+                          onClick={() => setFile(null)}
+                          className="text-hot-pink hover:text-hot-pink/80 transition-colors ml-1 p-0.5"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-[11px] font-medium text-zinc-500">
                     We recommend censoring names/handles before uploading.
                   </p>
                 </div>
@@ -225,26 +235,26 @@ export function PourTeaModal({
 
               {error && (
                 <motion.p
-                  className="text-xs font-bold text-hot-pink"
+                  className="rounded-lg bg-hot-pink/10 border border-hot-pink/20 p-3 text-[13px] font-semibold text-hot-pink flex items-center gap-2"
                   initial={{ opacity: 0, y: -4 }}
                   animate={{ opacity: 1, y: 0 }}
                 >
-                  {error}
+                  <span className="text-base text-hot-pink/80">⚠️</span> {error}
                 </motion.p>
               )}
 
-              <div className="flex items-center justify-between pt-1">
-                <p className="text-[10px] font-medium text-zinc-500 max-w-[60%]">
+              <div className="flex items-center justify-between pt-4 border-t border-white/5">
+                <p className="text-[11px] font-medium text-zinc-500 max-w-[55%] leading-relaxed">
                   Posts are anonymous but still need to follow basic decency.
                 </p>
                 <motion.button
                   type="submit"
                   disabled={isSubmitting || content.length > maxLength}
-                  className="inline-flex items-center gap-2 rounded-full bg-neon-green px-4 py-1.5 text-xs font-bold text-charcoal shadow-[0_0_24px_var(--neon-green)] disabled:cursor-not-allowed disabled:opacity-70"
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
+                  className="inline-flex items-center justify-center gap-2 rounded-full bg-zinc-50 px-6 py-2.5 text-[14px] font-bold text-zinc-900 shadow-sm transition-all duration-300 hover:bg-white hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:bg-zinc-50 disabled:hover:shadow-none"
+                  whileHover={!(isSubmitting || content.length > maxLength) ? { scale: 1.02, translateY: -1 } : {}}
+                  whileTap={!(isSubmitting || content.length > maxLength) ? { scale: 0.98 } : {}}
                 >
-                  {isSubmitting ? "Pouring..." : isReply ? "Reply" : "Pour the Tea"}
+                  {isSubmitting ? "Pouring..." : isReply ? "Reply" : "Drop the Tea"}
                 </motion.button>
               </div>
             </form>

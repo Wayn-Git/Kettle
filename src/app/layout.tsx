@@ -36,8 +36,8 @@ export const metadata: Metadata = {
 
 export const viewport: Viewport = {
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f8fafc" },
-    { media: "(prefers-color-scheme: dark)", color: "#1a1a1c" },
+    { media: "(prefers-color-scheme: light)", color: "#fafafa" },
+    { media: "(prefers-color-scheme: dark)", color: "#09090b" },
   ],
   width: "device-width",
   initialScale: 1,
@@ -56,50 +56,53 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/Kettlelogo.png" />
       </head>
       <body
-        className={`${archivo.variable} font-sans antialiased`}
+        className={`${archivo.variable} font-sans antialiased selection:bg-neon-green/30`}
         suppressHydrationWarning
       >
         <ThemeProvider>
           <ToastProvider>
             <div className="min-h-screen flex flex-col bg-charcoal text-foreground">
-              <header className="border-b border-white/10 bg-charcoal/80 backdrop-blur-2xl sticky top-0 z-50">
+              <header className="border-b border-white/5 bg-charcoal/80 backdrop-blur-3xl sticky top-0 z-50 shadow-sm">
                 <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
-                  <Link href="/" className="flex items-center gap-2 group">
-                    <img 
-                      src="/Kettlelogo.png" 
-                      alt="Kettle" 
-                      className="h-8 w-8 object-contain group-hover:opacity-80 transition-opacity"
-                    />
-                    <span className="bg-gradient-to-r from-neon-green to-hot-pink bg-clip-text text-lg font-bold text-transparent">
+                  <Link href="/" className="flex items-center gap-2.5 group">
+                    <div className="relative flex items-center justify-center">
+                      <div className="absolute inset-0 bg-neon-green/20 rounded-full blur-md opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                      <img
+                        src="/Kettlelogo.png"
+                        alt="Kettle"
+                        className="relative h-8 w-8 object-contain transition-transform duration-300 group-hover:scale-105"
+                      />
+                    </div>
+                    <span className="bg-gradient-to-r from-neon-green to-teal-500 bg-clip-text text-xl font-extrabold text-transparent tracking-tight">
                       Tea
                     </span>
                   </Link>
-                  <nav className="flex items-center gap-4">
+                  <nav className="flex items-center gap-5">
                     <Link
                       href="/kettles"
-                      className="hidden sm:inline text-xs font-bold text-zinc-400 hover:text-neon-green transition-colors"
+                      className="hidden sm:inline text-[13px] font-semibold text-zinc-400 hover:text-zinc-100 transition-colors"
                     >
                       Browse Kettles
                     </Link>
                     <Link
                       href="/admin"
-                      className="hidden sm:inline text-xs font-bold text-zinc-400 hover:text-hot-pink transition-colors"
+                      className="hidden sm:inline text-[13px] font-semibold text-zinc-400 hover:text-hot-pink transition-colors"
                     >
                       Admin
                     </Link>
                     <ThemeToggle />
-                    <span className="hidden lg:inline text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">
+                    <span className="hidden lg:inline text-[10px] font-bold uppercase tracking-[0.25em] text-zinc-500 bg-zinc-800/50 px-3 py-1.5 rounded-full border border-white/5">
                       Anonymous. Chaotic. Real.
                     </span>
                   </nav>
                 </div>
               </header>
 
-              <main className="mx-auto flex w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
+              <main className="mx-auto flex w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-12">
                 {children}
               </main>
 
-              <footer className="border-t border-white/5 bg-charcoal/60 backdrop-blur-xl py-4 text-center text-xs font-medium text-zinc-500">
+              <footer className="border-t border-white/5 bg-charcoal/60 backdrop-blur-xl py-6 text-center text-[13px] font-medium text-zinc-500">
                 Built for the ones who always have receipts ☕
               </footer>
             </div>

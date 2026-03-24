@@ -47,11 +47,11 @@ async function submitVote(postId: string, action: 'up' | 'down' | 'remove-up' | 
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ postId, action }),
     });
-    
+
     if (!response.ok) {
       throw new Error('Vote failed');
     }
-    
+
     const data = await response.json();
     return data.heat ?? null;
   } catch (error) {
@@ -70,16 +70,19 @@ export function VoteButtons({ postId, initialHeat, size = 'md' }: VoteButtonsPro
     setVoteState(stored[postId] ?? null);
   }, [postId]);
 
-  const handleVote = useCallback((direction: 'up' | 'down') => {
+  const handleVote = useCallback((e: React.MouseEvent, direction: 'up' | 'down') => {
+    e.preventDefault();
+    e.stopPropagation();
+
     if (!isSupabaseConfigured() || isPending) return;
 
     const currentVote = voteState;
-    
+
     // Optimistic update
     let optimisticHeat = heat;
     let newVoteState: VoteState = direction;
     let action: 'up' | 'down' | 'remove-up' | 'remove-down';
-    
+
     if (currentVote === direction) {
       // Removing vote
       action = direction === 'up' ? 'remove-up' : 'remove-down';
@@ -94,12 +97,12 @@ export function VoteButtons({ postId, initialHeat, size = 'md' }: VoteButtonsPro
       action = direction;
       optimisticHeat = direction === 'up' ? heat + 1 : heat - 1;
     }
-    
+
     // Apply optimistic update immediately
     setHeat(Math.max(0, optimisticHeat));
     setVoteState(newVoteState);
     setStoredVote(postId, newVoteState);
-    
+
     // Submit to Edge API in background
     startTransition(async () => {
       const serverHeat = await submitVote(postId, action);
@@ -110,64 +113,64 @@ export function VoteButtons({ postId, initialHeat, size = 'md' }: VoteButtonsPro
   }, [postId, heat, voteState, isPending]);
 
   const isBoiling = heat >= 100;
-  const sizeClasses = size === 'sm' 
-    ? 'h-6 w-6 text-xs' 
-    : 'h-7 w-7 text-sm';
+
+  // Calculate size variables based on 'size' prop
+  const iconSizeClass = size === 'sm' ? 'w-5 h-5 text-[11px]' : 'w-7 h-7 text-[13px]';
+  const digitSizeClass = size === 'sm' ? 'text-base' : 'text-lg';
+  const labelSizeClass = size === 'sm' ? 'text-[8px]' : 'text-[9.5px]';
 
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex flex-col items-center gap-1">
+    <div className="flex items-center gap-2.5">
+      {/* Up/Down buttons container */}
+      <div className="flex flex-col items-center gap-1.5 p-1 rounded-full bg-charcoal/40 border border-white/5">
         <motion.button
           type="button"
-          onClick={() => handleVote('up')}
+          onClick={(e) => handleVote(e, 'up')}
           disabled={isPending}
-          className={`${sizeClasses} rounded-full font-bold transition-all disabled:opacity-50 ${
-            voteState === 'up'
-              ? 'bg-neon-green text-charcoal shadow-[0_0_12px_var(--neon-green)]'
-              : 'border border-neon-green/50 bg-neon-green-dim text-neon-green hover:bg-neon-green/30'
-          }`}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          className={`${iconSizeClass} flex items-center justify-center rounded-full font-bold transition-all duration-300 disabled:opacity-50 ${voteState === 'up'
+            ? 'bg-sky-500 text-white shadow-[0_0_15px_rgba(14,165,233,0.3)]'
+            : 'text-zinc-500 hover:text-sky-400 hover:bg-sky-500/10'
+            }`}
+          whileHover={{ scale: 1.15 }}
+          whileTap={{ scale: 0.85 }}
           aria-label="Upvote"
         >
           ▲
         </motion.button>
+        <div className="w-3 h-px bg-white/10" />
         <motion.button
           type="button"
-          onClick={() => handleVote('down')}
+          onClick={(e) => handleVote(e, 'down')}
           disabled={isPending}
-          className={`${sizeClasses} rounded-full font-bold transition-all disabled:opacity-50 ${
-            voteState === 'down'
-              ? 'bg-hot-pink text-white shadow-[0_0_12px_var(--hot-pink)]'
-              : 'border border-white/10 glass text-zinc-400 hover:border-hot-pink/40 hover:text-hot-pink'
-          }`}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          className={`${iconSizeClass} flex items-center justify-center rounded-full font-bold transition-all duration-300 disabled:opacity-50 ${voteState === 'down'
+            ? 'bg-violet-500 text-white shadow-[0_0_15px_rgba(139,92,246,0.3)]'
+            : 'text-zinc-500 hover:text-violet-400 hover:bg-violet-500/10'
+            }`}
+          whileHover={{ scale: 1.15 }}
+          whileTap={{ scale: 0.85 }}
           aria-label="Downvote"
         >
           ▼
         </motion.button>
       </div>
+
+      {/* Heat Score */}
       <motion.div
-        className="flex flex-col items-start"
+        className="flex flex-col items-start min-w-[40px]"
         key={heat}
-        initial={{ scale: 1.1 }}
-        animate={{ scale: 1 }}
-        transition={{ type: 'spring', stiffness: 400 }}
+        initial={{ y: -4, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 20 }}
       >
         <span
-          className={`text-lg font-bold ${
-            isBoiling ? 'text-hot-pink' : 'text-neon-green'
-          }`}
+          className={`${digitSizeClass} font-extrabold tracking-tight tabular-nums transition-colors duration-300 ${isBoiling ? 'text-violet-400' : 'text-zinc-200'
+            }`}
         >
           {heat}
         </span>
         <span
-          className={`text-[9px] font-bold uppercase ${
-            isBoiling
-              ? 'text-hot-pink'
-              : 'text-zinc-500'
-          }`}
+          className={`${labelSizeClass} font-bold uppercase tracking-[0.15em] transition-colors duration-300 ${isBoiling ? 'text-violet-500' : 'text-zinc-500'
+            }`}
         >
           {isBoiling ? '🔥 Boiling' : 'Heat'}
         </span>
